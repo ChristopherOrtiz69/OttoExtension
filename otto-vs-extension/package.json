@@ -1,0 +1,47 @@
+{
+  "name": "otto-vs-extension",
+  "displayName": "otto-vs-extension",
+  "description": "Esta extension es interactiva con el fin de desestrezar al usuario.",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.109.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:otto-vs-extension.helloWorld",
+    "onCommand:otto-vs-extension.clawGame"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "otto-vs-extension.helloWorld",
+        "title": "Hello World"
+      },
+      {
+        "command": "otto-vs-extension.clawGame",
+        "title": "Máquina de Garra"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.109.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "typescript-eslint": "^8.54.0",
+    "eslint": "^9.39.2",
+    "typescript": "^5.9.3",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2"
+  }
+}
