@@ -55,15 +55,18 @@ function activate(context) {
     context.subscriptions.push(disposable);
     const clawGameDisposable = vscode.commands.registerCommand('otto-vs-extension.clawGame', () => {
         const panel = vscode.window.createWebviewPanel('clawGame', 'Máquina de Garra', vscode.ViewColumn.One, {
-            enableScripts: true
+            enableScripts: true,
+            localResourceRoots: [context.extensionUri]
         });
-        panel.webview.html = getClawGameHtml();
+        const clawClosedImageUri = panel.webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'Garra.png'));
+        const clawOpenImageUri = panel.webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'GarraAbierta.png'));
+        panel.webview.html = getClawGameHtml(clawClosedImageUri.toString(), clawOpenImageUri.toString());
     });
     context.subscriptions.push(clawGameDisposable);
 }
 // This method is called when your extension is deactivated
 function deactivate() { }
-function getClawGameHtml() {
+function getClawGameHtml(clawClosedImageSrc, clawOpenImageSrc) {
     return `
     <!DOCTYPE html>
     <html lang="es">
@@ -74,9 +77,7 @@ function getClawGameHtml() {
       <style>
         body { background: #222; color: #fff; font-family: sans-serif; margin: 0; overflow: hidden; }
         #game-container { position: relative; width: 400px; height: 500px; margin: 40px auto; background: #333; border-radius: 16px; box-shadow: 0 0 16px #000; }
-        #claw { position: absolute; top: 0; left: 0; width: 60px; height: 80px; transition: left 0.2s linear, top 0.5s linear; z-index: 2; }
-        #claw-arm { width: 20px; height: 80px; background: #aaa; margin: 0 auto; }
-        #claw-head { width: 60px; height: 40px; background: #888; border-radius: 0 0 30px 30px; margin: 0 auto; }
+        #claw { position: absolute; top: 0; left: 0; width: 60px; height: auto; transition: left 0.2s linear, top 0.5s linear; z-index: 2; }
         #plushies { position: absolute; bottom: 60px; left: 0; width: 100%; height: 120px; display: flex; justify-content: space-around; align-items: flex-end; z-index: 1; }
         .plushie { width: 50px; height: 50px; background: #ffb347; border-radius: 50%; border: 2px solid #fff; margin-bottom: 10px; box-shadow: 0 2px 8px #0006; transition: transform 0.5s, background 0.5s; }
         .plushie.grabbed { transform: scale(1.2) translateY(-60px); background: #4caf50; }
@@ -89,10 +90,7 @@ function getClawGameHtml() {
     </head>
     <body>
       <div id="game-container">
-        <div id="claw">
-          <div id="claw-arm"></div>
-          <div id="claw-head"></div>
-        </div>
+        <img id="claw" src="${clawClosedImageSrc}" alt="Garra" />
         <div id="plushies">
           <div class="plushie" id="plushie1"></div>
           <div class="plushie" id="plushie2"></div>
@@ -105,6 +103,8 @@ function getClawGameHtml() {
       </div>
       <script>
         let claw = document.getElementById('claw');
+        const clawClosedSrc = '${clawClosedImageSrc}';
+        const clawOpenSrc = '${clawOpenImageSrc}';
         let startBtn = document.getElementById('start-btn');
         let dropBtn = document.getElementById('drop-btn');
         let plushies = document.querySelectorAll('.plushie');
@@ -136,6 +136,7 @@ function getClawGameHtml() {
         }
 
         function dropClaw() {
+          claw.src = clawOpenSrc;
           claw.style.top = '320px';
           setTimeout(() => {
             grabPlushie();
@@ -155,6 +156,7 @@ function getClawGameHtml() {
           if (grabbed) {
             grabbed.classList.add('grabbed');
             grabbedPlushie = grabbed;
+            claw.src = clawClosedSrc;
             setTimeout(() => {
               claw.style.top = '0px';
               gameState = 'releasing';
@@ -165,6 +167,7 @@ function getClawGameHtml() {
             gameState = 'idle';
             dropBtn.disabled = true;
             startBtn.disabled = false;
+            claw.src = clawClosedSrc;
           }
         }
 
